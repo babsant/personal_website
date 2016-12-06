@@ -1,0 +1,39 @@
+version: '2'
+services:
+
+  web:
+    restart: always
+    build:
+      context: web
+      dockerfile: 'Dockerfile'
+    environment:
+      - PERSONAL_WEBSITE_PORT=8080
+    ports:
+      - '800:8080'
+    volumes:
+      - ./web/public:/personal_website/public
+
+  haproxy:
+    restart: always
+    build:
+      context: haproxy
+      dockerfile: 'Dockerfile'
+    ports:
+      - '80:80'
+      - '443:443'
+      - '2195:2195'
+    volumes:
+      - ./haproxy/ssl:/usr/local/etc/ssl
+    links:
+      - web
+      - jupyter
+
+  jupyter:
+    restart: always
+    build:
+      context: jupyter
+      dockerfile: 'Dockerfile'
+    ports:
+      - '500:500'
+    volumes:
+      - ./jupyter/notebooks:/opt/notebooks
